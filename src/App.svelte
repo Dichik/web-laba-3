@@ -1,6 +1,24 @@
 <script>
-    import http from './helper/request-helper'
+    import http from './helper/request-helper';
     import {OperationDocsHelper} from "./helper/operation-docs-helper";
+    import {ApolloClient, InMemoryCache, HttpLink} from '@apollo/client';
+    import {setClient} from "svelte-apollo";
+
+    function createApolloClient() {
+        const httpLink = new HttpLink({
+            uri: "https://web-laba3.herokuapp.com/v1/graphql"
+        });
+        const cache = new InMemoryCache();
+        const client = new ApolloClient({
+            httpLink,
+            cache
+        })
+        return client
+    }
+
+    const client = createApolloClient()
+    setClient(client)
+
     let tasks = []
     window.onload = async () => {
         const {train_todolist} = await http.startFetchMyQuery(OperationDocsHelper.QUERY_GetAll())
@@ -51,8 +69,8 @@
         const {insert_train_todolist} = await http.startExecuteMyMutation(OperationDocsHelper.MUTATION_InsertOne(name, priority, deadline));
         const {returning} = insert_train_todolist;
         tasks.push(returning[0]);
+        tasks.sort(function(a, b){return b.priority - a.priority});
         renderTable();
-        // FIXME sort tasks
     }
 
     // TODO pagination offset, limit, etc...
