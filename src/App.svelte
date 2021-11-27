@@ -1,16 +1,20 @@
 <script>
     import http from './helper/request-helper';
     import {OperationDocsHelper} from "./helper/operation-docs-helper";
-    import {ApolloClient, InMemoryCache, HttpLink} from '@apollo/client';
-    import {setClient} from "svelte-apollo";
+    import {ApolloClient, InMemoryCache} from '@apollo/client';
+    import {setClient, subscribe} from "svelte-apollo";
+    import {WebSocketLink} from "@apollo/client/link/ws";
 
     function createApolloClient() {
-        const httpLink = new HttpLink({
-            uri: "https://web-laba3.herokuapp.com/v1/graphql"
-        });
+        const wsLink = new WebSocketLink({
+            uri: "wss://web-laba3.herokuapp.com/v1/graphql",
+            options: {
+                reconnect: true,
+            }
+        })
         const cache = new InMemoryCache();
         const client = new ApolloClient({
-            httpLink,
+            link: wsLink,
             cache
         })
         return client
@@ -18,35 +22,7 @@
 
     const client = createApolloClient()
     setClient(client)
-
-    let tasks = []
-    window.onload = async () => {
-        const {train_todolist} = await http.startFetchMyQuery(OperationDocsHelper.QUERY_GetAll())
-        tasks = train_todolist
-        // TODO sort tasks by priority
-        renderTable()
-    }
-
-    const renderTable = () => {
-        const table = document.querySelector('table')
-        table.innerHTML = `
-            <caption>Tasks</caption>
-            <tr>
-                <th>Task</th>
-                <th>Priority</th>
-                <th>Deadline</th>
-                <th>Done</th>
-            </tr>
-        `;
-        tasks.forEach(t => {
-            table.innerHTML += `<tr>
-                <td>${t.task}</td>
-                <td>${t.priority}</td>
-                <td>${t.deadline}</td>
-                <td>${t.done}</td>
-            </tr>`;
-        })
-    }
+    const tasks = subscribe(OperationDocsHelper.SUBSCRIPTION_AllTodos)
 
     const convertToNumber = (string) => {
         return isNaN(+string) ? 0 : +string;
@@ -65,23 +41,47 @@
         const deadline = prompt("Deadline: ") ?? "";
 
         if(!name || !deadline) return
-
-        const {insert_train_todolist} = await http.startExecuteMyMutation(OperationDocsHelper.MUTATION_InsertOne(name, priority, deadline));
-        const {returning} = insert_train_todolist;
-        tasks.push(returning[0]);
-        tasks.sort(function(a, b){return b.priority - a.priority});
-        renderTable();
+        await http.startExecuteMyMutation(OperationDocsHelper.MUTATION_InsertOne(name, priority, deadline));
     }
 
     // TODO pagination offset, limit, etc...
 </script>
 
 <main>
-    <button on:click={addTask}>Add product</button>
-    <table border="1">
-
-    </table>
+    {#if $tasks.loading}
+        <div class="centerize">
+            <h1>Loading...</h1>
+        </div>
+    {:else if $tasks.error}
+        <div>Error!</div>
+    {:else if $tasks.data}
+        <button on:click={addTask}>Add product</button>
+        <table border="1">
+            <caption>Tasks</caption>
+            <tr>
+                <th>Task</th>
+                <th>Priority</th>
+                <th>Deadline</th>
+                <th>Done</th>
+            </tr>
+            {#each $tasks.data.train_todolist as t (t.id)}
+                <tr>
+                    <td>{t.task}</td>
+                    <td>{t.priority}</td>
+                    <td>{t.deadline}</td>
+                    <td>{t.done}</td>
+                </tr>
+            {/each}
+        </table>
+<!--        TODO add ability to mark a task as done and add a sign (перекреслення)-->
+    {/if}
 </main>
 
 <style>
+    .centerize {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
 </style>

@@ -1,3 +1,5 @@
+import {gql} from "@apollo/client"
+
 export class OperationDocsHelper {
     static QUERY_GetAll = () => {
         return `
@@ -27,4 +29,17 @@ export class OperationDocsHelper {
           }
         `;
     }
+
+    static SUBSCRIPTION_AllTodos = gql`
+        subscription MySubscription {
+          train_todolist(order_by: {priority: desc}) {
+            deadline
+            done
+            id
+            priority
+            task
+          }
+        }
+    `;
+
 }
