@@ -4,6 +4,7 @@
     import {ApolloClient, InMemoryCache} from '@apollo/client';
     import {setClient, subscribe} from "svelte-apollo";
     import {WebSocketLink} from "@apollo/client/link/ws";
+    import './styles/global.css'
 
     function createApolloClient() {
         const wsLink = new WebSocketLink({
@@ -26,8 +27,6 @@
     const convertToNumber = (string) => {
         return isNaN(+string) ? 0 : +string;
     }
-
-    // TODO add delete
 
     // TODO add update
 
@@ -60,7 +59,16 @@
     const markTask = async (id) => {
         let flag = await getDoneFromId(id)
         await http.startExecuteMyMutation(OperationDocsHelper.UPDATE_DONE(id, !flag))
-        // TODO if was marked - then unmark, in the other case - mark
+    }
+
+    const getColor = async (id) => {
+        let flag = await getDoneFromId(id)
+        return getStyleFromFlag(flag)
+    }
+
+    const getStyleFromFlag = (flag) => {
+        if(flag) return 'rows-style-done'
+        return 'rows-style-notdone'
     }
 
     // TODO pagination offset, limit, etc...
@@ -74,11 +82,12 @@
     {:else if $tasks.error}
         <div>Error!</div>
     {:else if $tasks.data}
-        <button on:click={addTask}>Add product</button>
-        <button on:click={deleteTasks}>Delete Done</button>
-        <table border="1">
-            <caption>Tasks</caption>
-            <tr>
+        <button class="button-style" on:click={addTask}>Add task</button>
+        <button class="button-style" on:click={deleteTasks}>Delete Done</button>
+        <button class="button-style">Update Task</button>
+        <table border="1" class="table-centerize">
+            <caption class="table-global-style">Tasks</caption>
+            <tr class="table-global-style">
                 <th></th>
                 <th>Task</th>
                 <th>Priority</th>
@@ -86,7 +95,7 @@
                 <th>Done</th>
             </tr>
             {#each $tasks.data.train_todolist as t (t.id)}
-                <tr>
+                <tr class="table-global-style rows-style-done">
                     <td>
 <!--                        FIXME how to get current boolean DONE-->
                         <input type="checkbox" name="done" id="done" on:click={markTask(t.id)} />
