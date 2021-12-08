@@ -42,4 +42,30 @@ export class OperationDocsHelper {
         }
     `;
 
+    static UPDATE_DONE = (id, done) => {
+        return `
+          mutation MyMutation {
+              update_train_todolist(where: {id: {_eq: "${id}"}}, _set: {done: "${done}"}) {
+                returning {
+                  deadline
+                  done
+                  id
+                  priority
+                  task
+                }
+              }
+            }
+        `;
+    }
+
+    static GET_UPDATE_AT = (id) => {
+        return `
+            query MyQuery {
+              train_todolist(where: {id: {_eq: "${id}"}}) {
+                done
+              }
+            }
+        `;
+    }
+
 }

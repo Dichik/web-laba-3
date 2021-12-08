@@ -7,17 +7,16 @@
 
     function createApolloClient() {
         const wsLink = new WebSocketLink({
-            uri: "wss://web-laba3.herokuapp.com/v1/graphql",
+            uri: "wss://web-laba3-2.herokuapp.com/v1/graphql",
             options: {
                 reconnect: true,
             }
-        })
+        });
         const cache = new InMemoryCache();
-        const client = new ApolloClient({
+        return new ApolloClient({
             link: wsLink,
             cache
         })
-        return client
     }
 
     const client = createApolloClient()
@@ -27,7 +26,6 @@
     const convertToNumber = (string) => {
         return isNaN(+string) ? 0 : +string;
     }
-    // TODO check data -> not less than now
 
     // TODO add delete
 
@@ -40,8 +38,25 @@
         const priority = convertToNumber(prompt("Task priority: ") ?? "");
         const deadline = prompt("Deadline: ") ?? "";
 
-        if(!name || !deadline) return
+        if(!name || !deadline) {
+            // TODO message about wrong deadline
+            return
+        }
+
+        if(Date.parse(deadline) < Date.now()) return
+
         await http.startExecuteMyMutation(OperationDocsHelper.MUTATION_InsertOne(name, priority, deadline));
+    }
+
+    const getDoneFromId = async (id) => {
+        const {train_todolist} = await http.startFetchMyQuery(OperationDocsHelper.GET_UPDATE_AT(id));
+        return train_todolist[0].done;
+    }
+
+    const markTask = async (id) => {
+        let flag = await getDoneFromId(id)
+        await http.startExecuteMyMutation(OperationDocsHelper.UPDATE_DONE(id, !flag))
+        // TODO if was marked - then unmark, in the other case - mark
     }
 
     // TODO pagination offset, limit, etc...
@@ -59,6 +74,7 @@
         <table border="1">
             <caption>Tasks</caption>
             <tr>
+                <th></th>
                 <th>Task</th>
                 <th>Priority</th>
                 <th>Deadline</th>
@@ -66,6 +82,10 @@
             </tr>
             {#each $tasks.data.train_todolist as t (t.id)}
                 <tr>
+                    <td>
+<!--                        FIXME how to get current boolean DONE-->
+                        <input type="checkbox" name="done" id="done" on:click={markTask(t.id)} />
+                    </td>
                     <td>{t.task}</td>
                     <td>{t.priority}</td>
                     <td>{t.deadline}</td>
