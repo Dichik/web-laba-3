@@ -68,4 +68,20 @@ export class OperationDocsHelper {
         `;
     }
 
+    static DELETE_DONE_TASKS = () => {
+        return `
+         mutation MyMutation {
+          delete_train_todolist(where: {done: {_eq: true}}) {
+            returning {
+              deadline
+              done
+              id
+              priority
+              task
+            }
+          }
+        }
+        `;
+    }
+
 }

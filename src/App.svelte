@@ -48,6 +48,10 @@
         await http.startExecuteMyMutation(OperationDocsHelper.MUTATION_InsertOne(name, priority, deadline));
     }
 
+    const deleteTasks = async () => {
+        await http.startExecuteMyMutation(OperationDocsHelper.DELETE_DONE_TASKS());
+    }
+
     const getDoneFromId = async (id) => {
         const {train_todolist} = await http.startFetchMyQuery(OperationDocsHelper.GET_UPDATE_AT(id));
         return train_todolist[0].done;
@@ -71,6 +75,7 @@
         <div>Error!</div>
     {:else if $tasks.data}
         <button on:click={addTask}>Add product</button>
+        <button on:click={deleteTasks}>Delete Done</button>
         <table border="1">
             <caption>Tasks</caption>
             <tr>
