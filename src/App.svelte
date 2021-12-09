@@ -28,16 +28,17 @@
     const convertToNumber = (string) => {
         return isNaN(+string) ? 0 : +string;
     }
-
+    // prettier-ignore
     // TODO add update
 
+    // prettier-ignore
     // TODO add search (search by)
 
-    // FIXME change checkboxes -> into img
-
+    // prettier-ignore
     // TODO pagination
 
     const addTask = async () => {
+        // prettier-ignore
         // FIXME use smth instead of prompts
         const name = prompt("Task name: ") ?? "";
         const priority = convertToNumber(prompt("Task priority: ") ?? "");
