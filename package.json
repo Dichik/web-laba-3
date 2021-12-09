@@ -21,9 +21,12 @@
     "@apollo/client": "^3.5.5",
     "graphql": "^16.0.1",
     "react-loader-spinner": "^4.0.0",
+    "react-router-dom": "^6.0.2",
     "sirv-cli": "^1.0.0",
     "styled-components": "^5.3.3",
     "subscriptions-transport-ws": "^0.11.0",
-    "svelte-apollo": "^0.4.0"
+    "svelte-apollo": "^0.4.0",
+    "use-history": "^1.4.1",
+    "use-state": "0.0.3"
   }
 }

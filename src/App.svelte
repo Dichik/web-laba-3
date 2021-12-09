@@ -20,6 +20,7 @@
         })
     }
 
+    let deadlineError = false
     const client = createApolloClient()
     setClient(client)
     const tasks = subscribe(OperationDocsHelper.SUBSCRIPTION_AllTodos)
@@ -43,11 +44,14 @@
         const deadline = prompt("Deadline: ") ?? "";
 
         if(!name.trim() || !deadline.trim() || !deadline.trim()) {
-            // TODO message about wrong deadline
+            alert("You entered empty string(s)... or there is some troubles, try again")
             return
         }
 
-        if(Date.parse(deadline) < Date.now()) return
+        if(Date.parse(deadline) < Date.now()) {
+            alert("can't we live past... but future we can change, man")
+            return
+        }
 
         await http.startExecuteMyMutation(OperationDocsHelper.MUTATION_InsertOne(name, priority, deadline));
     }
@@ -104,7 +108,6 @@
                 {#if t.done}
                     <tr class="table-global-style rows-style-done">
                         <td>
-                            <!--                        FIXME how to get current boolean DONE-->
                             <input type="checkbox" checked={t.done} name="done" on:click={markTask(t.id)} />
                         </td>
                         <td><strike>{t.task}</strike></td>
@@ -115,7 +118,6 @@
                 {:else }
                     <tr class="table-global-style rows-style-notdone">
                         <td>
-                            <!--                        FIXME how to get current boolean DONE-->
                             <input type="checkbox" checked={t.done} name="done" on:click={markTask(t.id)} />
                         </td>
                         <td>{t.task}</td>
@@ -126,7 +128,6 @@
                 {/if }
             {/each}
         </table>
-<!--        TODO add ability to mark a task as done and add a sign (перекреслення)-->
     {/if}
 </main>
 
