@@ -6,4 +6,5 @@
 .env.build
 
 .vercel
-.idea
+/.idea
+/scripts
