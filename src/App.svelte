@@ -32,7 +32,12 @@
 
     // TODO add search (search by)
 
+    // FIXME change checkboxes -> into img
+
+    // TODO pagination
+
     const addTask = async () => {
+        // FIXME use smth instead of prompts
         const name = prompt("Task name: ") ?? "";
         const priority = convertToNumber(prompt("Task priority: ") ?? "");
         const deadline = prompt("Deadline: ") ?? "";

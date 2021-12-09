@@ -32,7 +32,7 @@ export class OperationDocsHelper {
 
     static SUBSCRIPTION_AllTodos = gql`
         subscription MySubscription {
-          train_todolist(order_by: {priority: desc}) {
+          train_todolist(order_by: {priority: desc, deadline: asc, id: asc}) {
             deadline
             done
             id
