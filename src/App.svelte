@@ -42,7 +42,7 @@
         const priority = convertToNumber(prompt("Task priority: ") ?? "");
         const deadline = prompt("Deadline: ") ?? "";
 
-        if(!name || !deadline) {
+        if(!name.trim() || !deadline.trim() || !deadline.trim()) {
             // TODO message about wrong deadline
             return
         }
@@ -58,6 +58,7 @@
 
     const getDoneFromId = async (id) => {
         const {train_todolist} = await http.startFetchMyQuery(OperationDocsHelper.GET_UPDATE_AT(id));
+        console.log(train_todolist[0].done);
         return train_todolist[0].done;
     }
 
@@ -79,7 +80,7 @@
     // TODO pagination offset, limit, etc...
 </script>
 
-<main>
+<main class="main-style">
     {#if $tasks.loading}
         <div class="centerize">
             <h1>Loading...</h1>
@@ -100,16 +101,29 @@
                 <th>Done</th>
             </tr>
             {#each $tasks.data.train_todolist as t (t.id)}
-                <tr class="table-global-style rows-style-done">
-                    <td>
-<!--                        FIXME how to get current boolean DONE-->
-                        <input type="checkbox" name="done" id="done" on:click={markTask(t.id)} />
-                    </td>
-                    <td>{t.task}</td>
-                    <td>{t.priority}</td>
-                    <td>{t.deadline}</td>
-                    <td>{t.done}</td>
-                </tr>
+                {#if t.done}
+                    <tr class="table-global-style rows-style-done">
+                        <td>
+                            <!--                        FIXME how to get current boolean DONE-->
+                            <input type="checkbox" checked={t.done} name="done" on:click={markTask(t.id)} />
+                        </td>
+                        <td><strike>{t.task}</strike></td>
+                        <td><strike>{t.priority}</strike></td>
+                        <td><strike>{t.deadline}</strike></td>
+                        <td><strike>{t.done}</strike></td>
+                    </tr>
+                {:else }
+                    <tr class="table-global-style rows-style-notdone">
+                        <td>
+                            <!--                        FIXME how to get current boolean DONE-->
+                            <input type="checkbox" checked={t.done} name="done" on:click={markTask(t.id)} />
+                        </td>
+                        <td>{t.task}</td>
+                        <td>{t.priority}</td>
+                        <td>{t.deadline}</td>
+                        <td>{t.done}</td>
+                    </tr>
+                {/if }
             {/each}
         </table>
 <!--        TODO add ability to mark a task as done and add a sign (перекреслення)-->
