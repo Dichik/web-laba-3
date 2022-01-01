@@ -8,7 +8,7 @@
 
     function createApolloClient() {
         const wsLink = new WebSocketLink({
-            uri: "wss://web-laba3-2.herokuapp.com/v1/graphql",
+            uri: uri_apollo_client,
             options: {
                 reconnect: true,
             }
@@ -63,23 +63,14 @@
 
     const getDoneFromId = async (id) => {
         const {train_todolist} = await http.startFetchMyQuery(OperationDocsHelper.GET_UPDATE_AT(id));
-        console.log(train_todolist[0].done);
+        if(train_todolist.length === 0)
+            return null;
         return train_todolist[0].done;
     }
 
     const markTask = async (id) => {
         let flag = await getDoneFromId(id)
         await http.startExecuteMyMutation(OperationDocsHelper.UPDATE_DONE(id, !flag))
-    }
-
-    const getColor = async (id) => {
-        let flag = await getDoneFromId(id)
-        return getStyleFromFlag(flag)
-    }
-
-    const getStyleFromFlag = (flag) => {
-        if(flag) return 'rows-style-done'
-        return 'rows-style-notdone'
     }
 
     // TODO pagination offset, limit, etc...
