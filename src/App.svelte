@@ -8,6 +8,7 @@
 
     function createApolloClient() {
         try {
+            let uri_apollo_client = process.env.URI_APOLLO_CLIENT;
             const wsLink = new WebSocketLink({
                 uri: uri_apollo_client,
                 options: {
