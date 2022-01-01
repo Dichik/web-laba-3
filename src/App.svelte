@@ -25,6 +25,7 @@
         }
     }
 
+    const ERROR_MESSAGE = 'Something went wrong... see exception: ';
     let deadlineError = false
     let client;
     let tasks;
@@ -35,7 +36,6 @@
     } catch (e) {
         console.log(ERROR_MESSAGE + e)
     }
-    const ERROR_MESSAGE = 'Something went wrong... see exception: ';
 
     const convertToNumber = (string) => {
         return isNaN(+string) ? 0 : +string;
