@@ -7,23 +7,34 @@
     import './styles/global.css'
 
     function createApolloClient() {
-        const wsLink = new WebSocketLink({
-            uri: uri_apollo_client,
-            options: {
-                reconnect: true,
-            }
-        });
-        const cache = new InMemoryCache();
-        return new ApolloClient({
-            link: wsLink,
-            cache
-        })
+        try {
+            const wsLink = new WebSocketLink({
+                uri: uri_apollo_client,
+                options: {
+                    reconnect: true,
+                }
+            });
+            const cache = new InMemoryCache();
+            return new ApolloClient({
+                link: wsLink,
+                cache
+            })
+        } catch (e) {
+            console.log(ERROR_MESSAGE + e)
+        }
     }
 
     let deadlineError = false
-    const client = createApolloClient()
-    setClient(client)
-    const tasks = subscribe(OperationDocsHelper.SUBSCRIPTION_AllTodos)
+    let client;
+    let tasks;
+    try {
+        client = createApolloClient()
+        setClient(client)
+        tasks = subscribe(OperationDocsHelper.SUBSCRIPTION_AllTodos)
+    } catch (e) {
+        console.log(ERROR_MESSAGE + e)
+    }
+    const ERROR_MESSAGE = 'Something went wrong... see exception: ';
 
     const convertToNumber = (string) => {
         return isNaN(+string) ? 0 : +string;
@@ -40,6 +51,12 @@
     const addTask = async () => {
         // prettier-ignore
         // FIXME use smth instead of prompts
+
+        if(!window.navigator.onLine) {
+            alert('Ooops, something went wrong, please check your connection.')
+            return
+        }
+
         const name = prompt("Task name: ") ?? "";
         const priority = convertToNumber(prompt("Task priority: ") ?? "");
         const deadline = prompt("Deadline: ") ?? "";
@@ -54,23 +71,55 @@
             return
         }
 
-        await http.startExecuteMyMutation(OperationDocsHelper.MUTATION_InsertOne(name, priority, deadline));
+        try {
+            await http.startExecuteMyMutation(OperationDocsHelper.MUTATION_InsertOne(name, priority, deadline));
+        } catch (e) {
+            console.log(ERROR_MESSAGE + e);
+            alert('Ooops, something went wrong, please check your connection.')
+        }
     }
 
     const deleteTasks = async () => {
-        await http.startExecuteMyMutation(OperationDocsHelper.DELETE_DONE_TASKS());
+        if(!window.navigator.onLine) {
+            alert('Ooops, something went wrong, please check your connection.')
+            return
+        }
+
+        try {
+            await http.startExecuteMyMutation(OperationDocsHelper.DELETE_DONE_TASKS());
+        } catch (e) {
+            console.log(ERROR_MESSAGE + e);
+            alert('Ooops, something went wrong, please check your connection.')
+        }
     }
 
     const getDoneFromId = async (id) => {
-        const {train_todolist} = await http.startFetchMyQuery(OperationDocsHelper.GET_UPDATE_AT(id));
-        if(train_todolist.length === 0)
-            return null;
-        return train_todolist[0].done;
+        if(!window.navigator.onLine) {
+            alert('Ooops, something went wrong, please check your connection.')
+            return
+        }
+
+        try {
+            const {train_todolist} = await http.startFetchMyQuery(OperationDocsHelper.GET_UPDATE_AT(id));
+            if(train_todolist.length !== 0)
+                return train_todolist[0].done;
+        } catch (e) {
+            console.log(ERROR_MESSAGE + e)
+        }
     }
 
     const markTask = async (id) => {
-        let flag = await getDoneFromId(id)
-        await http.startExecuteMyMutation(OperationDocsHelper.UPDATE_DONE(id, !flag))
+        if(!window.navigator.onLine) {
+            alert('Ooops, something went wrong, please check your connection.')
+            return
+        }
+
+        try {
+            let flag = await getDoneFromId(id)
+            await http.startExecuteMyMutation(OperationDocsHelper.UPDATE_DONE(id, !flag))
+        } catch (e) {
+            console.log(e)
+        }
     }
 
     // TODO pagination offset, limit, etc...
