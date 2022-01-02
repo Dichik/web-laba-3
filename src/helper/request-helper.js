@@ -1,5 +1,5 @@
 class RequestHelper {
-  API_URL =  _api_url;
+  API_URL = _api_url;
 
   async fetchGraphQL(operationsDoc, operationName, variables) {
     try {
