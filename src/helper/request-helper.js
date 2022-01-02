@@ -1,5 +1,5 @@
 class RequestHelper {
-  API_URL = process.env.API_URL;
+  API_URL =  _api_url;
 
   async fetchGraphQL(operationsDoc, operationName, variables) {
     try {
