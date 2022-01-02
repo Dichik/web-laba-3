@@ -87,6 +87,7 @@
 
         try {
             await http.startExecuteMyMutation(OperationDocsHelper.DELETE_DONE_TASKS());
+            // open(MessageBox, {modalText: "Success!"})
         } catch (e) {
             console.log(ERROR_MESSAGE + e);
             alert('Ooops, something went wrong, please check your connection.')

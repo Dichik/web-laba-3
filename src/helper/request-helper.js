@@ -1,5 +1,9 @@
 class RequestHelper {
-  API_URL = _api_url;
+  constructor() {
+    /* eslint-disable */
+    this.API_URL = _api_url;
+    /* eslint-enable */
+  }
 
   async fetchGraphQL(operationsDoc, operationName, variables) {
     try {
