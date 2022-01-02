@@ -1,5 +1,5 @@
 class RequestHelper {
-  API_URL = "https://web-laba3-2.herokuapp.com/v1/graphql";
+  API_URL = _API_URL;
 
   async fetchGraphQL(operationsDoc, operationName, variables) {
     try {
