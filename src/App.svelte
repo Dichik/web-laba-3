@@ -6,10 +6,12 @@
     import {WebSocketLink} from "@apollo/client/link/ws";
     import './styles/global.css'
 
+    let uri_link = _uri_apollo_client
+
     function createApolloClient() {
         try {
             const wsLink = new WebSocketLink({
-                uri: "wss://web-laba3-2.herokuapp.com/v1/graphql",
+                uri: uri_link,
                 options: {
                     reconnect: true,
                 }

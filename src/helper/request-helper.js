@@ -1,9 +1,5 @@
 class RequestHelper {
-  constructor() {
-    /* eslint-disable */
-    this.API_URL = "https://web-laba3-2.herokuapp.com/v1/graphql";
-    /* eslint-enable */
-  }
+  API_URL = "https://web-laba3-2.herokuapp.com/v1/graphql";
 
   async fetchGraphQL(operationsDoc, operationName, variables) {
     try {
