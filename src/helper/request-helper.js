@@ -14,7 +14,7 @@ class RequestHelper {
 
       return await result.json();
     } catch (e) {
-      console.log(e);
+      throw "Error with fetching: " + e;
     }
   }
 
@@ -32,7 +32,7 @@ class RequestHelper {
       console.log(data);
       return data;
     } catch (e) {
-      console.log(e);
+      throw "Error with fetching: " + e;
     }
   }
 
@@ -50,7 +50,7 @@ class RequestHelper {
       console.log(data);
       return data;
     } catch (e) {
-      console.log(e);
+      throw "Error with fetching: " + e;
     }
   }
 }
