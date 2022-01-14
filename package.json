@@ -36,6 +36,7 @@
     "styled-components": "^5.3.3",
     "subscriptions-transport-ws": "^0.11.0",
     "svelte-apollo": "^0.4.0",
+    "svelte-simple-modal": "^1.2.0",
     "use-history": "^1.4.1",
     "use-state": "0.0.3"
   }
