@@ -13,9 +13,11 @@
 
     let defaultValue = ""
 
-    let name = defaultValue
-    let priority = defaultValue
-    let deadline = defaultValue
+    let data = {
+        task: defaultValue,
+        priority: defaultValue,
+        deadline: defaultValue
+    }
 
     function createApolloClient() {
         try {
@@ -43,7 +45,7 @@
         setClient(client)
         tasks = subscribe(OperationDocsHelper.SUBSCRIPTION_AllTodos)
     } catch (e) {
-        modal.set(bind(MessageBox, { message: ("Error: " + e)}));
+        $modal = modal.set(bind(MessageBox, { message: ("Error: " + e)}));
     }
 
     const convertToNumber = (string) => {
@@ -57,52 +59,49 @@
             return
         }
 
-        // const name = prompt("Task name: ") ?? "";
-        // const priority = convertToNumber(prompt("Task priority: ") ?? "");
-        // const deadline = prompt("Deadline: ") ?? "";
-
-        if(!name.trim() || !deadline.trim()) {
+        if(!data.name.trim() || !data.deadline.trim()) {
             modal.set(bind(MessageBox, { message: ("You entered empty string(s)... or there is some troubles, try again")}));
             return
         }
 
-        if(Date.parse(deadline) < Date.now()) {
+        if(Date.parse(data.deadline) < Date.now()) {
             modal.set(bind(MessageBox, { message: ("can't we live past... but future we can change, man")}));
             return
         }
 
-        try {
-            await http.startExecuteMyMutation(OperationDocsHelper.MUTATION_InsertOne(name, priority, deadline));
-            modal.set(bind(MessageBox, { message: ("Success!")}));
-            backToDefault();
-        } catch (e) {
-            modal.set(bind(MessageBox, { message: ('Ooops, something went wrong, please check your connection.' + e)}));
-        }
+        performOperation(true);
     }
 
     const backToDefault = () => {
-        name = defaultValue
-        priority = defaultValue
-        deadline = defaultValue
+        data = {
+            task: defaultValue,
+            priority: defaultValue,
+            deadline: defaultValue
+        }
     }
 
-    const deleteTasks = async () => {
+    const performOperation = async (operationAdding) => {
         if(!window.navigator.onLine) {
-            modal.set(bind(MessageBox, { message: ('Ooops, something went wrong, please check your connection.')}));
+            modal.set(bind(MessageBox, { message: (ERROR_MESSAGE)}));
             return
         }
 
         try {
-            await http.startExecuteMyMutation(OperationDocsHelper.DELETE_DONE_TASKS());
+            if(operationAdding) {
+                await http.startExecuteMyMutation(OperationDocsHelper.MUTATION_InsertOne(data));
+                backToDefault();
+            } else {
+                await http.startExecuteMyMutation(OperationDocsHelper.DELETE_DONE_TASKS());
+            }
             modal.set(bind(MessageBox, { message: ("Success!")}));
         } catch (e) {
-            modal.set(bind(MessageBox, { message: ("Error: " + e)}));
+            modal.set(bind(MessageBox, { message: (ERROR_MESSAGE + e)}));
         }
     }
 
     const getDoneFromId = async (id) => {
         if(!window.navigator.onLine) {
-            modal.set(bind(MessageBox, { message: ('Ooops, something went wrong, please check your connection.')}));
+            modal.set(bind(MessageBox, { message: (ERROR_MESSAGE)}));
             return
         }
 
@@ -117,44 +116,36 @@
 
     const markTask = async (id) => {
         if(!window.navigator.onLine) {
-            modal.set(bind(MessageBox, { message: ('Ooops, something went wrong, please check your connection.')}));
+            modal.set(bind(MessageBox, { message: (ERROR_MESSAGE)}));
             return
         }
-
+        let flag = await getDoneFromId(id)
         try {
-            let flag = await getDoneFromId(id)
             await http.startExecuteMyMutation(OperationDocsHelper.UPDATE_DONE(id, !flag))
         } catch (e) {
-            modal.set(bind(MessageBox, { message: ('Ooops, something went wrong, please check your connection. See error: ' + e)}));
-
+            $modal = modal.set(bind(MessageBox, { message: (ErrorMessage + e)}));
         }
     }
-
-    // TODO pagination offset, limit, etc...
 </script>
 
 <main class="main-style">
     <Modal show={$modal}>
-        {#if $tasks.loading}
-        <div class="centerize">
-            <h1>Loading...</h1>
-        </div>
-        {:else if $tasks.error}
+        {#if $tasks.error}
             <div>Error!</div>
         {:else if $tasks.data}
             <button class="button-style" on:click={addTask}>Add task</button>
-            <button class="button-style" on:click={deleteTasks}>Delete Done</button>
+            <button class="button-style" on:click={performOperation(false)}>Delete Done</button>
             <button class="button-style">Update Task</button>
 
             <div class="input-fields">
                 <label>
-                    Task Name <input bind:value={name} class="input-field-style">
+                    Task Name <input bind:value={data.task} class="input-field-style">
                 </label>
                 <label>
-                    Priority <input bind:value={priority} class="input-field-style">
+                    Priority <input bind:value={data.priority} class="input-field-style">
                 </label>
                 <label>
-                    Deadline <input bind:value={deadline} class="input-field-style">
+                    Deadline <input bind:value={data.deadline} class="input-field-style">
                 </label>
             </div>
 
@@ -167,7 +158,7 @@
                     <th>Deadline</th>
                     <th>Done</th>
                 </tr>
-                {#each $tasks.data.train_todolist as t (t.id)}
+                {#each $tasks.data.train_todolist as t}
                     {#if t.done}
                         <tr class="table-global-style rows-style-done">
                             <td>
@@ -191,6 +182,11 @@
                     {/if }
                 {/each}
             </table>
+        {/if}
+        {#if $tasks.loading}
+        <div class="centerize">
+            <h1>Loading...</h1>
+        </div>
         {/if}
     </Modal>
     
